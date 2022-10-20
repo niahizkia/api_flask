@@ -19,4 +19,4 @@ messages_api = Blueprint('resources/messages', __name__)
 api          = Api(messages_api)
 
 
-api.add_resource(MessageList, '/api/v1/messages', endpoint='messages')
+api.add_resource(MessageList, '/messages', endpoint='messages')

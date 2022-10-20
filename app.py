@@ -4,7 +4,7 @@ import models
 from resources.messages import messages_api
 
 app = Flask(__name__)
-app.register_blueprint(messages_api)
+app.register_blueprint(messages_api, url_prefix='/api/v1')
 # api = Api(app)
 # api.add_resource(messages.MessageList, '/messages')
 
