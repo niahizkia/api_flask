@@ -62,6 +62,10 @@ class UserList(UserBase):
         else:
             raise Exception('username sudah terdaftar')
 
+    @jwt_required()
+    def get(self):
+        return{'message':'ini bagian yang terproteksi..'}
+
 class User(UserBase):
     def post(self):
         args = self.reqparse.parse_args()
@@ -74,7 +78,8 @@ class User(UserBase):
         except models.User.DoesNotExist:
             return{'message' : 'user/password is wrong'}
         else:
-            return{'message' : 'login success'}
+            access_token = create_access_token(identity = username)
+            return{'message' : 'login success', 'access_token':access_token}
 
 users_api = Blueprint('resources/users', __name__)
 api          = Api(users_api)
