@@ -3,13 +3,31 @@ from flask_restful import Resource, Api, reqparse, fields, marshal, marshal_with
 from hashlib import md5
 import models
 
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 
 user_fields = {
-    'username'  : fields.String
+    'username'  : fields.String,
+    'access_token' : fields.String
 }
 
+class UserBase(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'username',
+            required = True,
+            help     = 'username wajib ada',
+            location = ['form']
+        )
+        self.reqparse.add_argument(
+            'password',
+            required = True,
+            help     = 'password wajib ada',
+            location = ['form']
+        )
+        super().__init__()
 
-class UserList(Resource):
+class UserList(UserBase):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument(
@@ -37,26 +55,14 @@ class UserList(Resource):
                 username = username,
                 password = md5(password.encode('utf-8')).hexdigest()
             )
+            # ngirim access token
+            access_token      = create_access_token(identity = username)
+            user.access_token = access_token
             return marshal(user, user_fields)
         else:
             raise Exception('username sudah terdaftar')
 
-class User(Resource):
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument(
-            'username',
-            required = True,
-            help     = 'username wajib ada',
-            location = ['form']
-        )
-        self.reqparse.add_argument(
-            'password',
-            required = True,
-            help     = 'password wajib ada',
-            location = ['form']
-        )
-        super().__init__()
+class User(UserBase):
     def post(self):
         args = self.reqparse.parse_args()
         username = args.get('username')
